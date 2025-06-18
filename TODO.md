@@ -14,14 +14,13 @@ This checklist outlines all the tasks required to build the metadata embedding p
       - [x] Create `src/metadata_parser.py`
       - [x] Create `src/image_updater.py`
       - [x] Create `src/sanity_checker.py`
-  - [ ] Create `tests/` for unit and integration tests.
-      - [ ] Create `tests/__init__.py`
-      - [ ] Create `tests/test_logger.py`
-      - [ ] Create `tests/test_metadata_parser.py`
-      - [ ] Create `tests/test_image_updater.py`
-      - [ ] Create `tests/test_sanity_checker.py`
-  - [ ] Create `config/` for configuration files.
-      - [ ] Create `config/settings.py`
+  - [x] Create `tests/` for unit and integration tests.
+      - [x] Create `tests/test_logger.py`
+      - [x] Create `tests/test_metadata_parser.py`
+      - [x] Create `tests/test_image_updater.py`
+      - [x] Create `tests/test_sanity_checker.py`
+  - [x] Create `config/` for configuration files.
+      - [x] Create `config/settings.py`
   - [x] Create root-level files:
       - [x] `README.md` – Include project overview and purpose.
       - [x] `requirements.txt`
