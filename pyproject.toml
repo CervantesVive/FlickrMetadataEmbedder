@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "flickr-metadata-embedder"
+version = "0.0.1"
+description = "CLI tool that processes Flickr export data to embed EXIF metadata into images"
+authors = [{ name = "Ivo Pletikosic", email = "ivo@pletikosic.com" }]
+requires-python = ">=3.12"
+dependencies = [
+    "piexif>=1.1.3",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "poethepoet>=0.24.0",
+]
+
+[tool.poe.tasks]
+# AIDEV-NOTE: Core application tasks for CLI usage
+run = "python -m src.main"
+run-with-overwrite = "python -m src.main --overwrite"
+run-sanity-check = "python -m src.main --sanity-check --verbose"
+
+# AIDEV-NOTE: Testing tasks
+test = "pytest"
+test-verbose = "pytest -v"
+test-specific = "pytest tests/"
+
+# AIDEV-NOTE: Development setup and maintenance
+install = "pip install -r requirements.txt"
+install-dev = "pip install -r requirements.txt"
+clean = "find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true"
+
+# AIDEV-NOTE: Utility tasks for common workflows
+help = "poe --help"
+
+[tool.poe.tasks.run-example]
+help = "Run with example paths (modify as needed)"
+cmd = "python -m src.main --input-dir /path/to/flickr/export --output-dir /path/to/output"
+
+[tool.poe.tasks.dev-setup]
+help = "Complete development environment setup"
+sequence = [
+    "install",
+    {cmd = "echo 'Development environment ready!'"}
+]

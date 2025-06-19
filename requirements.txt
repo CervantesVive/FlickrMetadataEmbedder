@@ -1,2 +1,3 @@
 piexif>=1.1.3   # Library for modifying EXIF metadata
 pytest>=7.0.0   # Testing framework
+poethepoet>=0.24.0   # Task runner for Python projects

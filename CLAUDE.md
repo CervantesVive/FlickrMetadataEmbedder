@@ -17,20 +17,34 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Common Commands
 
-### Testing
+### Using Poe the Poet (Recommended)
+```bash
+poe install              # Install dependencies
+poe dev-setup           # Complete development setup
+poe test                # Run all tests
+poe test-verbose        # Run tests with verbose output
+poe run                 # Run application (requires --input-dir and --output-dir args)
+poe run-example         # Example run command (modify paths as needed)
+poe clean               # Clean __pycache__ directories
+poe help                # Show all available tasks
+```
+
+### Direct Commands (Alternative)
+
+#### Testing
 ```bash
 pytest                    # Run all tests
 pytest tests/test_specific_module.py  # Run specific test file
 ```
 
-### Running the Application
+#### Running the Application
 ```bash
 python -m src.main --input-dir /path/to/flickr/export --output-dir /path/to/output
 python -m src.main --input-dir /path/to/flickr/export --output-dir /path/to/output --overwrite
 python -m src.main --input-dir /path/to/flickr/export --output-dir /path/to/output --sanity-check --verbose
 ```
 
-### Development Setup
+#### Development Setup
 ```bash
 pip install -r requirements.txt
 ```
@@ -78,7 +92,7 @@ The codebase uses functional programming patterns with standalone functions (exc
 *   **Python**: 3.12+, FastAPI, `async/await` preferred.
 *   **Formatting**: `ruff` enforces 96-char lines, double quotes, sorted imports. Standard `ruff` linter rules.
 *   **Typing**: Strict (Pydantic v2 models preferred); `from __future__ import annotations`.
-*   **Naming**: `snake_case` (functions/variables), `PascalCase` (classes), `SCREAMING_SNAKE` (constants).
+*   **Naming**: `snake_case` (functions/variables), `PascalCase` (classes), `SCREAMING_SNAKE` (constants). Always use descriptive variable names.
 *   **Error Handling**: Typed exceptions; context managers for resources.
 *   **Documentation**: Google-style docstrings for public functions/classes.
 *   **Testing**: Separate test files matching source file patterns.
