@@ -48,14 +48,14 @@ This checklist outlines all the tasks required to build the metadata embedding p
   - [x] Write tests in `tests/test_logger.py` to simulate logging at various levels.
 
 ### Metadata Parser Module (`src/metadata_parser.py`)
-- [ ] **Implement Metadata Extraction**
-  - [ ] Walk through the input directory recursively.
-  - [ ] Identify JSON files starting with `"photo_"` and ending with `".json"`.
-  - [ ] Extract required metadata fields: `id`, `date_taken`, and `geolocation`.
-  - [ ] Construct and return a dictionary mapping photo IDs to their metadata.
-  - [ ] Log any JSON parsing errors using Logger.
+- [x] **Implement Metadata Extraction**
+  - [x] Walk through the input directory recursively.
+  - [x] Identify JSON files starting with `"photo_"` and ending with `".json"`.
+  - [x] Extract required metadata fields: `id`, `date_taken`, and `geolocation`.
+  - [x] Construct and return a dictionary mapping photo IDs to their metadata.
+  - [x] Log any JSON parsing errors using Logger.
 - [ ] **Unit Test the Metadata Parser**
-  - [ ] Create tests in `tests/test_metadata_parser.py` for valid JSONs, missing fields, and invalid files.
+  - [x] Create tests in `tests/test_metadata_parser.py` for valid JSONs, missing fields, and invalid files.
 
 ### Image Updater Module (`src/image_updater.py`)
 - [ ] **Implement Image Updating Functionality**
