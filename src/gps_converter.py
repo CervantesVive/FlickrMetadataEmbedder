@@ -11,7 +11,7 @@ def decimal_to_dms(decimal_coord):
     Returns:
         tuple: (degrees, minutes, seconds) as floats
     """
-    # AIDEV-NOTE: EXIF requires absolute values - direction stored separately
+    # EXIF requires absolute values - direction stored separately
     abs_coord = abs(decimal_coord)
     degrees = int(abs_coord)
     minutes_float = (abs_coord - degrees) * 60
@@ -37,8 +37,8 @@ def dms_to_rational(degrees, minutes, seconds):
         list: Three tuples [(deg_num, deg_den), (min_num, min_den), (sec_num, sec_den)]
     """
     return [
-        (degrees, 1),                    # degrees as whole number
-        (minutes, 1),                    # minutes as whole number
+        (degrees, 1),                    # degrees as a whole number
+        (minutes, 1),                    # minutes as a whole number
         (int(seconds * 10000), 10000)    # seconds with 4 decimal precision
     ]
 
@@ -101,7 +101,7 @@ def flickr_to_exif_gps(flickr_geolocation):
     lat_ref = get_coordinate_ref(lat, 'lat')
     lon_ref = get_coordinate_ref(lon, 'lon')
 
-    # AIDEV-NOTE: Only set required GPS fields - avoid overwriting other GPS data
+    # Only set required GPS fields - avoid overwriting other GPS data
     gps_data = {
         piexif.GPSIFD.GPSLatitude: lat_rational,
         piexif.GPSIFD.GPSLatitudeRef: lat_ref,
@@ -130,11 +130,13 @@ def exif_to_decimal_gps(exif_gps):
     try:
         # Extract latitude
         lat_rational = exif_gps.get(piexif.GPSIFD.GPSLatitude)
-        lat_ref = exif_gps.get(piexif.GPSIFD.GPSLatitudeRef, b'N').decode()
+        lat_ref_raw = exif_gps.get(piexif.GPSIFD.GPSLatitudeRef, 'N')
+        lat_ref = lat_ref_raw.decode() if isinstance(lat_ref_raw, bytes) else lat_ref_raw
 
         # Extract longitude
         lon_rational = exif_gps.get(piexif.GPSIFD.GPSLongitude)
-        lon_ref = exif_gps.get(piexif.GPSIFD.GPSLongitudeRef, b'E').decode()
+        lon_ref_raw = exif_gps.get(piexif.GPSIFD.GPSLongitudeRef, 'E')
+        lon_ref = lon_ref_raw.decode() if isinstance(lon_ref_raw, bytes) else lon_ref_raw
 
         if not all([lat_rational, lon_rational]):
             return None, None

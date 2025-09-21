@@ -14,7 +14,7 @@ class TestGPSConverter:
 
     def test_decimal_to_dms_positive(self):
         """Test conversion of positive decimal coordinates to DMS."""
-        # AIDEV-NOTE: Testing San Francisco coordinates (37.7749° N)
+        # Testing San Francisco coordinates (37.7749° N)
         degrees, minutes, seconds = decimal_to_dms(37.7749)
 
         assert degrees == 37
@@ -23,7 +23,7 @@ class TestGPSConverter:
 
     def test_decimal_to_dms_negative(self):
         """Test conversion of negative decimal coordinates to DMS."""
-        # AIDEV-NOTE: Testing San Francisco longitude (-122.4194° W)
+        # Testing San Francisco longitude (-122.4194° W)
         degrees, minutes, seconds = decimal_to_dms(-122.4194)
 
         # Should return absolute values - direction handled separately
@@ -32,7 +32,7 @@ class TestGPSConverter:
         assert abs(seconds - 9.84) < 0.01
 
     def test_decimal_to_dms_zero(self):
-        """Test conversion of zero coordinate."""
+        """Test conversion of zero coordinates."""
         degrees, minutes, seconds = decimal_to_dms(0.0)
 
         assert degrees == 0
@@ -40,7 +40,7 @@ class TestGPSConverter:
         assert seconds == 0.0
 
     def test_decimal_to_dms_small_value(self):
-        """Test conversion of small decimal value."""
+        """Test conversion of a small decimal value."""
         degrees, minutes, seconds = decimal_to_dms(0.5)
 
         assert degrees == 0
@@ -48,7 +48,7 @@ class TestGPSConverter:
         assert seconds == 0.0
 
     def test_dms_to_rational_whole_numbers(self):
-        """Test conversion of whole DMS values to rational format."""
+        """Test conversion of whole DMS values to a rational format."""
         rational = dms_to_rational(37, 46, 29.0)
 
         expected = [(37, 1), (46, 1), (290000, 10000)]
@@ -80,7 +80,7 @@ class TestGPSConverter:
 
     def test_flickr_to_exif_gps_san_francisco(self):
         """Test conversion of San Francisco coordinates from Flickr to EXIF format."""
-        # AIDEV-NOTE: Real San Francisco coordinates from Flickr export
+        # Real San Francisco coordinates from Flickr export
         flickr_geo = {
             "latitude": 37.7749,
             "longitude": -122.4194,
@@ -109,7 +109,7 @@ class TestGPSConverter:
 
     def test_flickr_to_exif_gps_sydney(self):
         """Test conversion of Sydney coordinates."""
-        # AIDEV-NOTE: Testing southern hemisphere coordinates
+        # Testing southern hemisphere coordinates
         flickr_geo = {
             "latitude": -33.8688,
             "longitude": 151.2093
@@ -121,7 +121,7 @@ class TestGPSConverter:
         assert exif_gps[piexif.GPSIFD.GPSLongitudeRef] == 'E'
 
     def test_flickr_to_exif_gps_equator_prime_meridian(self):
-        """Test conversion of coordinates at equator and prime meridian."""
+        """Test conversion of coordinates at the equator and prime meridian."""
         flickr_geo = {
             "latitude": 0.0,
             "longitude": 0.0
@@ -175,7 +175,7 @@ class TestGPSConverter:
 
     def test_exif_to_decimal_gps_san_francisco(self):
         """Test reverse conversion from EXIF to decimal coordinates."""
-        # AIDEV-NOTE: Testing round-trip conversion accuracy
+        # Testing round-trip conversion accuracy
         original_flickr = {"latitude": 37.7749, "longitude": -122.4194}
 
         # Convert to EXIF
@@ -184,7 +184,7 @@ class TestGPSConverter:
         # Convert back to decimal
         lat_decimal, lon_decimal = exif_to_decimal_gps(exif_gps)
 
-        # Should be very close to original (within precision limits)
+        # Should be very close to the original (within precision limits)
         assert abs(lat_decimal - 37.7749) < 0.0001
         assert abs(lon_decimal - (-122.4194)) < 0.0001
 
@@ -215,7 +215,7 @@ class TestGPSConverter:
 
     def test_round_trip_precision(self):
         """Test precision preservation in round-trip conversions."""
-        # AIDEV-NOTE: Test various coordinate precisions
+        # Test various coordinate precisions
         test_coordinates = [
             (37.7749, -122.4194),      # San Francisco
             (40.7128, -74.0060),       # New York
@@ -231,13 +231,13 @@ class TestGPSConverter:
             exif_gps = flickr_to_exif_gps(flickr_geo)
             converted_lat, converted_lon = exif_to_decimal_gps(exif_gps)
 
-            # Precision should be within 0.0001 degrees (~11 meters at equator)
+            # Precision should be within 0.0001 degrees (~11 meters at the equator)
             assert abs(converted_lat - original_lat) < 0.0001
             assert abs(converted_lon - original_lon) < 0.0001
 
     def test_flickr_additional_fields(self):
         """Test handling of additional Flickr GPS fields."""
-        # AIDEV-NOTE: Flickr exports may include additional GPS metadata
+        # Flickr exports may include additional GPS metadata
         flickr_geo = {
             "latitude": 37.7749,
             "longitude": -122.4194,
