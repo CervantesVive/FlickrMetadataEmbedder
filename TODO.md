@@ -40,12 +40,12 @@ This checklist outlines all the tasks required to build the metadata embedding p
 ## 3. Module Implementation
 
 ### Logger Module (`src/logger.py`)
-- [ ] **Implement Logger Class**
-  - [ ] Initialize with output directory and verbose flag.
-  - [ ] Write a method to log messages to `metadata_processing.log`.
-  - [ ] Print errors/warnings to console (and info messages when verbose mode is on).
-- [ ] **Unit Test the Logger**
-  - [ ] Write tests in `tests/test_logger.py` to simulate logging at various levels.
+- [x] **Implement Logger Class**
+  - [x] Initialize with output directory and verbose flag.
+  - [x] Write a method to log messages to `metadata_processing.log`.
+  - [x] Print errors/warnings to console (and info messages when verbose mode is on).
+- [x] **Unit Test the Logger**
+  - [x] Write tests in `tests/test_logger.py` to simulate logging at various levels.
 
 ### Metadata Parser Module (`src/metadata_parser.py`)
 - [ ] **Implement Metadata Extraction**
