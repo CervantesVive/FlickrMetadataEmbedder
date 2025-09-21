@@ -11,7 +11,6 @@ class TestImageUpdater:
 
     def test_embed_metadata_successful(self):
         """Test successful metadata embedding into images."""
-        # AIDEV-NOTE: Testing a standard Flickr image naming pattern with photo ID
         with tempfile.TemporaryDirectory() as tmpdir:
             mock_logger = Mock()
 
@@ -204,17 +203,56 @@ class TestImageUpdater:
             open(image_path, 'a').close()
 
             with patch('piexif.load') as mock_load, \
-                 patch('piexif.dump') as mock_dump:
+                 patch('piexif.dump') as mock_dump, \
+                 patch('piexif.insert') as mock_insert:
 
                 exif_dict = {"Exif": {}, "GPS": {}}
                 mock_load.return_value = exif_dict
 
                 embed_metadata(tmpdir, tmpdir, metadata, True, mock_logger)
 
-                # Verify GPS data was set
+                # Verify GPS data was converted and set
                 mock_dump.assert_called_once()
                 dump_call_dict = mock_dump.call_args[0][0]
-                assert dump_call_dict["GPS"] == metadata["66666"]["geolocation"]
+
+                # GPS should have been updated with converted coordinates
+                assert "GPS" in dump_call_dict
+                # Should contain EXIF GPS IFD fields (integer constants), not raw Flickr data
+                gps_data = dump_call_dict["GPS"]
+                # Check for actual EXIF GPS IFD constants
+                assert piexif.GPSIFD.GPSLatitude in gps_data
+                assert piexif.GPSIFD.GPSLongitude in gps_data
+
+    def test_embed_metadata_invalid_gps_data(self):
+        """Test handling of invalid GPS data from Flickr."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            mock_logger = Mock()
+
+            metadata = {
+                "invalid_gps": {
+                    "date_taken": "2023-01-01 12:00:00",
+                    "geolocation": {"latitude": "invalid", "longitude": -122.4194}
+                }
+            }
+
+            image_path = os.path.join(tmpdir, "invalid_gps_original.jpg")
+            open(image_path, 'a').close()
+
+            with patch('piexif.load') as mock_load, \
+                 patch('piexif.dump') as mock_dump, \
+                 patch('piexif.insert') as mock_insert:
+
+                exif_dict = {"Exif": {}, "GPS": {}}
+                mock_load.return_value = exif_dict
+
+                embed_metadata(tmpdir, tmpdir, metadata, True, mock_logger)
+
+                # Should log warning about invalid GPS data
+                log_calls = mock_logger.log.call_args_list
+                assert any("[WARNING]" in str(call) and "Invalid GPS data" in str(call) for call in log_calls)
+
+                # Should still process the image (for date_taken)
+                mock_dump.assert_called_once()
 
     def test_embed_metadata_exception_handling(self):
         """Test error handling when piexif operations fail."""
@@ -267,7 +305,6 @@ class TestImageUpdater:
 
     def test_embed_metadata_multiple_id_matches(self):
         """Test handling images with multiple photo ID matches in filename."""
-        # AIDEV-NOTE: Edge case where the filename contains multiple photo IDs
         with tempfile.TemporaryDirectory() as tmpdir:
             mock_logger = Mock()
 
@@ -315,7 +352,7 @@ class TestImageUpdater:
 
     def test_embed_metadata_various_flickr_sizes(self):
         """Test matching various Flickr image size suffixes."""
-        # AIDEV-NOTE: Flickr uses suffixes like _o, _b, _c, _z, _m, _n, _s, _t, _q
+        # Flickr uses suffixes like _o, _b, _c, _z, _m, _n, _s, _t, _q
         with tempfile.TemporaryDirectory() as tmpdir:
             mock_logger = Mock()
 

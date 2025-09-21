@@ -1,5 +1,6 @@
 import os
 import piexif
+from src.gps_converter import flickr_to_exif_gps
 
 
 def embed_metadata(input_dir, output_dir, metadata, overwrite, logger):
@@ -18,9 +19,8 @@ def embed_metadata(input_dir, output_dir, metadata, overwrite, logger):
         logger: Logger instance for progress and error reporting
 
     Note:
-        GPS data format conversion from Flickr JSON to EXIF GPS IFD may be incomplete.
-        The current implementation assumes direct assignment; production needs proper
-        lat/lon to degrees/minutes/seconds conversion per EXIF specification.
+        GPS coordinates are converted from Flickr's decimal format to EXIF's
+        degrees/minutes/seconds rational format per EXIF specification.
         Only processes JPEG/TIFF files with existing EXIF support.
     """
     for root, _, files in os.walk(input_dir):
@@ -37,7 +37,12 @@ def embed_metadata(input_dir, output_dir, metadata, overwrite, logger):
                         exif_dict["Exif"][piexif.ExifIFD.DateTimeOriginal] = metadata[photo_id]["date_taken"].encode()
 
                     if metadata[photo_id]["geolocation"]:
-                        exif_dict["GPS"] = metadata[photo_id]["geolocation"]  # Adjust format if needed
+                        # Convert Flickr GPS to proper EXIF format
+                        gps_data = flickr_to_exif_gps(metadata[photo_id]["geolocation"])
+                        if gps_data:
+                            exif_dict["GPS"].update(gps_data)
+                        else:
+                            logger.log(f"[WARNING] Invalid GPS data in {file}, skipping GPS embedding")
 
                     piexif.insert(piexif.dump(exif_dict), output_path)
                     logger.log(f"[INFO] Metadata embedded into {file}")
