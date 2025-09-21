@@ -98,8 +98,8 @@ Supported arguments:
 
 ### Test JSON Parsing
 
-- **Valid metadata file**: Ensure correct extraction of `id`, `date_taken`, and `geolocation`.
-- **Missing fields**: Handle cases where `date_taken` or `geolocation` are absent.
+- **Valid metadata file**: Ensure correct extraction of `id`, `date_taken`, and `geolocation`.
+- **Missing fields**: Handle cases where `date_taken` or `geolocation` are absent.
 - **Invalid JSON file**: Gracefully handle corrupted or improperly formatted JSON.
 - **Extra fields**: Ignore unrelated metadata while still extracting needed values.
 
@@ -108,7 +108,7 @@ Supported arguments:
 ### Test Metadata Embedding
 
 - **Valid EXIF update**: Confirm metadata is correctly embedded into an image.
-- **Conflicting existing metadata**: Ensure original EXIF data is **preserved** when conflicting metadata exists.
+- **Conflicting existing metadata**: Ensure original EXIF data is **preserved** when conflicting metadata exists.
 - **Image format preservation**: Verify output images retain their original format (JPEG, PNG, etc.).
 - **Invalid image file**: Properly handle cases where an image file is corrupted or unsupported.
 
@@ -117,25 +117,25 @@ Supported arguments:
 ### Test Metadata-Image Matching
 
 - **Perfect match scenario**: Confirm correct metadata-image pairing.
-- **Missing metadata file**: Log a warning when an image has **no corresponding metadata**.
-- **Missing image file**: Log a warning when a metadata entry has **no corresponding image**.
-- **Multiple matching images**: Log a warning when **more than one image** matches the same metadata ID.
+- **Missing metadata file**: Log a warning when an image has **no corresponding metadata**.
+- **Missing image file**: Log a warning when a metadata entry has **no corresponding image**.
+- **Multiple matching images**: Log a warning when **more than one image** matches the same metadata ID.
 
 ### 8.1.4 Logging (`logger.py`)
 
 ### Test Log Generation
 
-- **Errors & warnings logging**: Ensure issues are correctly written to both the **console** and **log file**.
-- **Log format validation**: Confirm each entry follows the structured **one-line-per-warning/error** format.
+- **Errors & warnings logging**: Ensure issues are correctly written to both the **console** and **log file**.
+- **Log format validation**: Confirm each entry follows the structured **one-line-per-warning/error** format.
 
 ### 8.1.5 Command-Line Interface (`main.py`)
 
 ### Test CLI Arguments Handling
 
 - **Valid argument combinations**: Ensure expected behavior when users provide correct arguments.
-- **Missing required arguments**: Confirm the script **halts execution** when critical arguments are absent.
+- **Missing required arguments**: Confirm the script **halts execution** when critical arguments are absent.
 - **Sanity check mode functionality**: Verify metadata validation works without modifying images.
-- **Verbose mode behavior**: Ensure **informational logging** is enabled when `-verbose` is used.
+- **Verbose mode behavior**: Ensure **informational logging** is enabled when `-verbose` is used.
 
 ### **8.2 Integration Tests**
 

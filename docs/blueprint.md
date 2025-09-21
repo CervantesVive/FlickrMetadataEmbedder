@@ -1,26 +1,26 @@
 ### **Project Overview**
 
-Create a Python-based command-line tool that reads Flickr export file directories to extract JSON metadata and update corresponding image files with EXIF metadata using the `piexif` library. The tool should also support a “sanity check mode” to verify mismatches between images and metadata.
+Create a Python-based command-line tool that reads Flickr export file directories to extract JSON metadata and update corresponding image files with EXIF metadata using the `piexif` library. The tool should also support a “sanity check mode” to verify mismatches between images and metadata.
 
 ### **Architecture & Components**
 
 1. **Project Scaffolding & Initialization**
     - Set up a Git repository and a directory structure that separates source code (`src/`), tests (`tests/`), configuration (`config/`), and documentation files.
-    - Create essential files like `README.md`, `requirements.txt`, `.gitignore`, etc.
+    - Create essential files like `README.md`, `requirements.txt`, `.gitignore`, etc.
 2. **Dependency Management**
-    - Manage dependencies using `requirements.txt`. The key libraries include `piexif` for EXIF handling and `pytest` for testing.
+    - Manage dependencies using `requirements.txt`. The key libraries include `piexif` for EXIF handling and `pytest` for testing.
 3. **Core Modules**
     - **Logger Module (**`src/logger.py`**)**: A simple logging class that writes errors, warnings, and optionally info messages to a log file (and to the console when in verbose mode).
-    - **Metadata Parser Module (**`src/metadata_parser.py`**)**: Scans the input directory, locates JSON files with names starting with `"photo_"` and ending with `".json"`, extracts necessary metadata (e.g., `id`, `date_taken`, `geolocation`), and stores this in a dictionary.
-    - **Image Updater Module (**`src/image_updater.py`**)**: Locates images based on the ID embedded in the filename (within directories named with the prefix `"data-download-"`) and embeds JSON metadata into the image EXIF using `piexif`. It preserves existing metadata (logging a warning on conflict) and supports an overwrite flag.
+    - **Metadata Parser Module (**`src/metadata_parser.py`**)**: Scans the input directory, locates JSON files with names starting with `"photo_"` and ending with `".json"`, extracts necessary metadata (e.g., `id`, `date_taken`, `geolocation`), and stores this in a dictionary.
+    - **Image Updater Module (**`src/image_updater.py`**)**: Locates images based on the ID embedded in the filename (within directories named with the prefix `"data-download-"`) and embeds JSON metadata into the image EXIF using `piexif`. It preserves existing metadata (logging a warning on conflict) and supports an overwrite flag.
     - **Sanity Checker Module (**`src/sanity_checker.py`**)**: Validates the correspondence between metadata files and image files. It logs warnings for missing images, missing metadata, and multiple matches, and then outputs a summary count.
-    - **Main CLI Module (**`src/main.py`**)**: Ties all modules together using `argparse` to parse command-line arguments (e.g., input directory, output directory, `-overwrite`, `-sanity-check`, `-verbose`).
+    - **Main CLI Module (**`src/main.py`**)**: Ties all modules together using `argparse` to parse command-line arguments (e.g., input directory, output directory, `-overwrite`, `-sanity-check`, `-verbose`).
 4. **Testing Strategy**
-    - **Unit Tests:** For each module, validate functionality through unit tests (e.g., correct metadata extraction, proper handling of edge cases, log format maintenance).
-    - **Integration Tests:** Assemble dummy directories with test data to simulate the process and verify the complete flow.
+    - **Unit Tests:** For each module, validate functionality through unit tests (e.g., correct metadata extraction, proper handling of edge cases, log format maintenance).
+    - **Integration Tests:** Assemble dummy directories with test data to simulate the process and verify the complete flow.
 5. **Error Handling & Logging**
     - Log errors and warnings when JSON parsing fails, files are missing, metadata conflicts occur, or other failures occur.
-    - Use exit codes `0` (if no errors/warnings) or `1` otherwise.
+    - Use exit codes `0` (if no errors/warnings) or `1` otherwise.
 
 ## **Iterative Chunks & Steps**
 
@@ -30,39 +30,39 @@ Below is an iterative breakdown of the work. Each chunk builds on the previous o
 
 - Create the Git repository.
 - Set up the directory structure:
-    - `src/` for source files.
-    - `tests/` for unit and integration tests.
-    - `config/` for configuration/settings (if needed).
-    - Root-level files: `README.md`, `requirements.txt`, `.gitignore`.
-- Create placeholder files for `src/main.py`, `src/logger.py`, etc.
+    - `src/` for source files.
+    - `tests/` for unit and integration tests.
+    - `config/` for configuration/settings (if needed).
+    - Root-level files: `README.md`, `requirements.txt`, `.gitignore`.
+- Create placeholder files for `src/main.py`, `src/logger.py`, etc.
 
 ### **Chunk 2: Dependency Management**
 
-- Create a `requirements.txt` listing `piexif` and `pytest` (and possibly any future dependencies).
+- Create a `requirements.txt` listing `piexif` and `pytest` (and possibly any future dependencies).
 - Ensure that the project installs dependencies correctly.
 
 ### **Chunk 3: Logger Module**
 
-- Write `src/logger.py` to create a `Logger` class that writes messages to a log file and, in verbose mode, echoes to the console.
-- Create simple unit tests (in `tests/test_logger.py`).
+- Write `src/logger.py` to create a `Logger` class that writes messages to a log file and, in verbose mode, echoes to the console.
+- Create simple unit tests (in `tests/test_logger.py`).
 
 ### **Chunk 4: Metadata Parser Module**
 
-- Build `src/metadata_parser.py` that walks through the input directory, identifies JSON metadata files (using naming conventions), and extracts required fields.
+- Build `src/metadata_parser.py` that walks through the input directory, identifies JSON metadata files (using naming conventions), and extracts required fields.
 - Write tests to ensure correct parsing and handling of invalid JSON.
 
 ### **Chunk 5: Image Updater Module**
 
-- Develop `src/image_updater.py`:
-    - Use the `piexif` library to load current EXIF data from images.
+- Develop `src/image_updater.py`:
+    - Use the `piexif` library to load current EXIF data from images.
     - Embed new EXIF metadata taken from the JSON.
     - Ensure that if there’s conflicting metadata, the existing image metadata is preserved.
     - Handle file I/O errors gracefully.
-- Write tests (in `tests/test_image_updater.py`) with sample images.
+- Write tests (in `tests/test_image_updater.py`) with sample images.
 
 ### **Chunk 6: Sanity Checker Module**
 
-- Create `src/sanity_checker.py` to:
+- Create `src/sanity_checker.py` to:
     - Walk through the input directory.
     - Identify matching pairs based on the photo ID embedded in file names.
     - Log warnings for any orphan metadata files, images without metadata, or multiple matches.
@@ -70,10 +70,10 @@ Below is an iterative breakdown of the work. Each chunk builds on the previous o
 
 ### **Chunk 7: Main CLI Module**
 
-- Implement `src/main.py`:
-    - Set up command-line argument parsing using `argparse`.
+- Implement `src/main.py`:
+    - Set up command-line argument parsing using `argparse`.
     - Wire together the modules:
-        - If `-sanity-check` is provided, run the sanity check.
+        - If `-sanity-check` is provided, run the sanity check.
         - Otherwise, run the metadata extraction and then perform image updates.
     - Integrate logging throughout.
 
@@ -85,13 +85,13 @@ Below is an iterative breakdown of the work. Each chunk builds on the previous o
 
 ### **Chunk 9: Final Review and Documentation**
 
-- Update `README.md` with project overview, setup instructions, and usage examples.
+- Update `README.md` with project overview, setup instructions, and usage examples.
 - Finalize unit tests, integration tests, and prepare the project for further extension.
 - Commit changes with well-written messages.
 
 ## **Series of LLM Prompts**
 
-Each prompt is separated by a markdown code block tagged as `text`.
+Each prompt is separated by a markdown code block tagged as `text`.
 
 ### **Prompt 1: Project Initialization & Scaffolding**
 
@@ -125,7 +125,7 @@ Please output the scaffold as a series of empty files and basic placeholders (e.
 
 ```
 
-### **Prompt 2: Setting Up** `requirements.txt`
+### **Prompt 2: Setting Up** `requirements.txt`
 
 text
 
