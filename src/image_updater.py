@@ -3,6 +3,26 @@ import piexif
 
 
 def embed_metadata(input_dir, output_dir, metadata, overwrite, logger):
+    """
+    Embed EXIF metadata into images based on Flickr export data.
+
+    Searches for images matching photo IDs and updates their EXIF with date taken
+    and GPS data. Flickr image filenames contain the photo ID (e.g., '12345678_original.jpg').
+    Preserves the existing EXIF structure and only updates specified fields.
+
+    Args:
+        input_dir: Root of Flickr export containing image files in subdirs
+        output_dir: Destination for updated images (ignored if overwrite=True)
+        metadata: Dict mapping photo_id -> {'date_taken', 'geolocation'} from parser
+        overwrite: If True, updates files in-place; if False, saves to output_dir
+        logger: Logger instance for progress and error reporting
+
+    Note:
+        GPS data format conversion from Flickr JSON to EXIF GPS IFD may be incomplete.
+        The current implementation assumes direct assignment; production needs proper
+        lat/lon to degrees/minutes/seconds conversion per EXIF specification.
+        Only processes JPEG/TIFF files with existing EXIF support.
+    """
     for root, _, files in os.walk(input_dir):
         for file in files:
             if any(photo_id in file for photo_id in metadata.keys()):

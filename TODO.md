@@ -58,14 +58,14 @@ This checklist outlines all the tasks required to build the metadata embedding p
   - [x] Create tests in `tests/test_metadata_parser.py` for valid JSONs, missing fields, and invalid files.
 
 ### Image Updater Module (`src/image_updater.py`)
-- [ ] **Implement Image Updating Functionality**
-  - [ ] Locate image files within subdirectories named with `data-download-` and match their IDs.
-  - [ ] Use `piexif` to load an image’s EXIF data.
-  - [ ] Update the `DateTimeOriginal` and `GPS` EXIF fields if provided.
-  - [ ] Maintain original file format and preserve existing conflicting metadata (log a warning).
-  - [ ] Write the updated EXIF back to the image, handling any I/O errors gracefully.
-- [ ] **Unit Test the Image Updater**
-  - [ ] Create tests in `tests/test_image_updater.py` to verify correct metadata embedding and error handling.
+- [x] **Implement Image Updating Functionality**
+  - [x] Locate image files within subdirectories named with `data-download-` and match their IDs.
+  - [x] Use `piexif` to load an image’s EXIF data.
+  - [x] Update the `DateTimeOriginal` and `GPS` EXIF fields if provided.
+  - [x] Maintain original file format and preserve existing conflicting metadata (log a warning).
+  - [x] Write the updated EXIF back to the image, handling any I/O errors gracefully.
+- [x] **Unit Test the Image Updater**
+  - [x] Create tests in `tests/test_image_updater.py` to verify correct metadata embedding and error handling.
 
 ### Sanity Checker Module (`src/sanity_checker.py`)
 - [ ] **Implement Sanity Validation**
