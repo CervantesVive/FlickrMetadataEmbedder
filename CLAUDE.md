@@ -1,6 +1,18 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+## Workflow Requirements
+
+**MANDATORY**: Before ANY implementation work, invoke the appropriate skill:
+
+- **New features/functionality** → `/brainstorming` FIRST, then implementation
+- **Bug fixes/failures** → `/systematic-debugging` BEFORE proposing fixes
+- **Writing code** → `/test-driven-development` BEFORE implementation
+- **Multi-step tasks** → `/writing-plans` BEFORE touching code
+- **Executing plans** → `/executing-plans` OR `/subagent-driven-development`
+- **Task completion** → `/verification-before-completion` BEFORE claiming done
+- **Code review needed** → `/requesting-code-review` when work is complete
+
+**Rule**: If there's even 1% chance a skill applies, invoke it. No exceptions.
 
 ## Non-negotiable golden rules
 
