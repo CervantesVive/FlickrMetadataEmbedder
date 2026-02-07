@@ -43,6 +43,25 @@ def dms_to_rational(degrees, minutes, seconds):
     ]
 
 
+def dms_to_rational_string(degrees: int, minutes: int, seconds: float) -> str:
+    """Convert DMS to pyexiv2-compatible rational string.
+
+    pyexiv2 expects GPS coordinates as: "deg/1 min/1 sec_num/sec_den"
+    Example: "37/1 46/1 29640/10000"
+
+    Args:
+        degrees: Degrees component (non-negative int).
+        minutes: Minutes component (non-negative int).
+        seconds: Seconds component with fractional precision.
+
+    Returns:
+        Rational string for pyexiv2 GPS tags.
+    """
+    # AIDEV-NOTE: Same 10000 precision as dms_to_rational() for consistency
+    sec_num = int(seconds * 10000)
+    return f"{degrees}/1 {minutes}/1 {sec_num}/10000"
+
+
 def get_coordinate_ref(decimal_coord, coord_type):
     """
     Get EXIF coordinate reference (N/S for lat, E/W for lon).
@@ -62,6 +81,7 @@ def get_coordinate_ref(decimal_coord, coord_type):
         raise ValueError("coord_type must be 'lat' or 'lon'")
 
 
+# AIDEV-NOTE: Legacy piexif-format functions below. Keep until GPS converter tests are migrated.
 def flickr_to_exif_gps(flickr_geolocation):
     """
     Convert Flickr JSON geolocation to EXIF GPS format for piexif.
