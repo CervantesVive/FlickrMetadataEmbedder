@@ -186,11 +186,18 @@ def main() -> int:
                     mapped_tags,
                     overwrite=args.overwrite,
                 )
-                results.append(ProcessingResult(
-                    photo_id=pair.photo_id,
-                    status=ProcessingStatus.SUCCESS,
-                    fields_embedded=fields_written,
-                ))
+                # AIDEV-NOTE: Empty fields_written means metadata already present — skip
+                if fields_written:
+                    results.append(ProcessingResult(
+                        photo_id=pair.photo_id,
+                        status=ProcessingStatus.SUCCESS,
+                        fields_embedded=fields_written,
+                    ))
+                else:
+                    results.append(ProcessingResult(
+                        photo_id=pair.photo_id,
+                        status=ProcessingStatus.SKIPPED,
+                    ))
                 if state_mgr:
                     state_mgr.mark_processed(pair.photo_id)
             except Exception as e:

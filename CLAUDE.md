@@ -16,14 +16,14 @@
 
 ## Non-negotiable golden rules
 
-| #: | AI *may* do                                                            | AI *must NOT* do                                                                    |
-|---|------------------------------------------------------------------------|-------------------------------------------------------------------------------------|
+| #: | AI *may* do                                                            | AI *must NOT* do                                                           |
+|---|------------------------------------------------------------------------|----------------------------------------------------------------------------|
 | G-0 | Whenever unsure about something that's related to the project, ask the developer for clarification before making changes.   |  ❌ Write changes or use tools when you are not sure about something project specific, or if you don't have context for a particular feature/decision. |
-| G-1 | Generate code **only inside** relevant source directories or explicitly pointed files.    | ❌ Touch `tests/`, `SPEC.md`, or any `*_spec.py` / `*.ward` files (humans own tests & specs). |
-| G-2 | Add/update **`AIDEV-NOTE:` anchor comments** near non-trivial edited code. | ❌ Delete or mangle existing `AIDEV-` comments.                                     |
-| G-3 | Follow lint/style configs (`pyproject.toml`, `.ruff.toml`, `.pre-commit-config.yaml`). Use the project's configured linter, if available, instead of manually re-formatting code. | ❌ Re-format code to any other style.                                               |
-| G-4 | For changes >300 LOC or >3 files, **ask for confirmation**.            | ❌ Refactor large modules without human guidance.                                     |
-| G-5 | Stay within the current task context. Inform the dev if it'd be better to start afresh.                                 | ❌ Continue work from a prior prompt after "new task" – start a fresh session.      |
+| G-1 | Generate code **only inside** relevant source directories or explicitly pointed files.    | ❌ Touch `SPEC.md`, or any `*_spec.py` / `*.ward` files (humans own specs). Tests in `tests/` are fair game. |
+| G-2 | Add/update **`AIDEV-NOTE:` anchor comments** near non-trivial edited code. | ❌ Delete or mangle existing `AIDEV-` comments.                             |
+| G-3 | Follow lint/style configs (`pyproject.toml`, `.ruff.toml`, `.pre-commit-config.yaml`). Use the project's configured linter, if available, instead of manually re-formatting code. | ❌ Re-format code to any other style.                                       |
+| G-4 | For changes >300 LOC or >3 files, **ask for confirmation**.            | ❌ Refactor large modules without human guidance.                           |
+| G-5 | Stay within the current task context. Inform the dev if it'd be better to start afresh.                                 | ❌ Continue work from a prior prompt after "new task" – start a fresh session. |
 
 ---
 
@@ -79,7 +79,7 @@ FlickrMetadataEmbedder is a CLI tool that processes Flickr export data to embed 
 - **tag_definitions.py**: Pure constants mapping Flickr fields → pyexiv2 EXIF/IPTC/XMP tag names
 - **metadata_mapper.py**: Converts FlickrPhoto → MetadataTags using tag_definitions, with field filtering support
 - **image_writer.py**: pyexiv2 wrapper writing EXIF/IPTC/XMP with preserve-existing and copy-then-modify safety
-- **gps_converter.py**: GPS coordinate math (decimal ↔ DMS ↔ rational string). Legacy piexif functions kept for tests.
+- **gps_converter.py**: GPS coordinate math (decimal → DMS → rational string for pyexiv2)
 - **state_manager.py**: Resume/checkpoint tracking via JSON state file with batch-save every 50 photos
 - **sanity_checker.py**: Validates JSON-to-image matching using file_scanner, outputs rich table
 - **logger.py**: stdlib logging + rich console handler (replaces old file-open-per-message Logger class)
@@ -111,12 +111,19 @@ FlickrMetadataEmbedder is a CLI tool that processes Flickr export data to embed 
 
 ## Testing Structure
 
-Tests use pytest framework with one test file per module (`test_<module_name>.py`). GPS converter tests (20+ tests) are comprehensive and passing. Other test files need updating for the new API (old tests tested the piexif-based API).
+Tests use pytest framework with one test file per module (`test_<module_name>.py`). Shared fixtures (MINIMAL_JPEG, flickr_json_data, flickr_export_dir) in `conftest.py`.
+
+| Test file | Tests | What it covers |
+|---|---|---|
+| test_gps_converter.py | 12 | decimal_to_dms, dms_to_rational_string, get_coordinate_ref |
+| test_image_writer.py | 15 | Real JPEG roundtrip via MINIMAL_JPEG fixture, preserve_existing, idempotent |
+| test_metadata_parser.py | 18 | FlickrPhoto parsing, geo normalization, error handling |
+| test_logger.py | 9 | setup_logging levels, file handler, handler cleanup |
+| test_sanity_checker.py | 5 | Match/orphan detection, exit codes |
 
 ## Dependencies
 
-- **pyexiv2**: EXIF/IPTC/XMP metadata read/write (replaces piexif)
-- **piexif**: Legacy — kept until GPS converter tests are migrated
+- **pyexiv2**: EXIF/IPTC/XMP metadata read/write (macOS: may need `brew install inih` for libexiv2)
 - **pydantic**: Data validation for Flickr JSON parsing
 - **rich**: Progress bars and console logging
 - **pytest**: Testing framework
@@ -124,7 +131,7 @@ Tests use pytest framework with one test file per module (`test_<module_name>.py
 
 ## Coding standards
 
-*   **Python**: 3.12+, FastAPI, `async/await` preferred.
+*   **Python**: 3.12+, synchronous CLI tool (no async).
 *   **Formatting**: `ruff` enforces 96-char lines, double quotes, sorted imports. Standard `ruff` linter rules.
 *   **Typing**: Strict (Pydantic v2 models preferred); `from __future__ import annotations`.
 *   **Naming**: `snake_case` (functions/variables), `PascalCase` (classes), `SCREAMING_SNAKE` (constants). Always use descriptive variable names.
@@ -159,7 +166,7 @@ async def render_feed(...):
 
 ---
 
-## 6. Commit discipline
+## Commit discipline
 
 *   **Granular commits**: One logical change per commit.
 *   **Tag AI-generated commits**: e.g., `feat: optimise feed query [AI]`.
