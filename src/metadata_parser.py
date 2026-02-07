@@ -1,43 +1,65 @@
+"""Parse Flickr JSON files into validated FlickrPhoto models.
+
+Replaces the old extract_metadata() that only read date_taken + geolocation.
+Now reads ALL Flickr fields via Pydantic validation with automatic
+geo/geolocation field normalization.
+"""
+
+from __future__ import annotations
+
 import json
-import os
+import logging
+from pathlib import Path
 
-def extract_metadata(input_dir, logger):
-    """
-    Parse Flickr export JSON files to extract EXIF-embeddable metadata.
+from pydantic import ValidationError
 
-    Flickr exports store metadata separately from images in JSON files named
-    'photo_<id>_<hash>.json'. This function maps photo IDs to their original
-    capture metadata for later EXIF embedding.
+from src.models import FlickrPhoto
+
+logger = logging.getLogger(__name__)
+
+
+def parse_photo_json(json_path: Path) -> FlickrPhoto | None:
+    """Parse a single Flickr JSON file into a FlickrPhoto model.
 
     Args:
-        input_dir: Root of Flickr export (contains 'data-download-*' subdirs)
-        logger: Logger instance for error reporting
+        json_path: Path to a photo_<id>.json file.
 
     Returns:
-        dict: Maps photo_id (str) -> {'date_taken': str, 'geolocation': dict}
-              Returns empty dict if no valid metadata found.
-
-    Note:
-        Flickr's date format varies by export version. Geolocation may include
-        accuracy, context, and place IDs beyond just lat/lon coordinates.
+        FlickrPhoto if successfully parsed, None otherwise.
     """
-    metadata_dict = {}
+    try:
+        with open(json_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except (json.JSONDecodeError, OSError) as e:
+        logger.error("Failed to read %s: %s", json_path.name, e)
+        return None
 
-    for root, _, files in os.walk(input_dir):
-        for file in files:
-            if file.startswith("photo_") and file.endswith(".json"):
-                file_path = os.path.join(root, file)
-                try:
-                    with open(file_path, "r", encoding="utf-8") as f:
-                        data = json.load(f)
-                        photo_id = data.get("id")
-                        # Skip files without ID field - required for image matching
-                        if photo_id is not None:
-                            metadata_dict[str(photo_id)] = {
-                                "date_taken": data.get("date_taken"),
-                                "geolocation": data.get("geolocation")
-                            }
-                except (json.JSONDecodeError, KeyError) as e:
-                    logger.log(f"[ERROR] Failed to parse {file}: {e}")
+    if "id" not in data or data["id"] is None:
+        logger.warning("No 'id' field in %s, skipping", json_path.name)
+        return None
 
-    return metadata_dict
+    try:
+        # AIDEV-NOTE: FlickrPhoto.model_validator handles geo normalization and empty strings
+        return FlickrPhoto.model_validate(data)
+    except ValidationError as e:
+        logger.error("Validation failed for %s: %s", json_path.name, e)
+        return None
+
+
+def parse_all_metadata(json_paths: dict[str, Path]) -> dict[str, FlickrPhoto]:
+    """Parse all JSON files into FlickrPhoto models.
+
+    Args:
+        json_paths: Dict mapping photo_id -> json file path (from file_scanner).
+
+    Returns:
+        Dict mapping photo_id -> FlickrPhoto (only successfully parsed entries).
+    """
+    results: dict[str, FlickrPhoto] = {}
+
+    for photo_id, json_path in json_paths.items():
+        photo = parse_photo_json(json_path)
+        if photo is not None:
+            results[photo.id] = photo
+
+    return results
