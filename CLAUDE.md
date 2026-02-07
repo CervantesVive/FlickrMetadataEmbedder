@@ -53,7 +53,10 @@ pytest tests/test_specific_module.py  # Run specific test file
 ```bash
 python -m src.main --input-dir /path/to/flickr/export --output-dir /path/to/output
 python -m src.main --input-dir /path/to/flickr/export --output-dir /path/to/output --overwrite
-python -m src.main --input-dir /path/to/flickr/export --output-dir /path/to/output --sanity-check --verbose
+python -m src.main --input-dir /path/to/flickr/export --sanity-check --verbose
+python -m src.main --input-dir /path/to/flickr/export --dry-run --verbose
+python -m src.main --input-dir /path/to/flickr/export --output-dir /path/to/output --resume
+python -m src.main --input-dir /path/to/flickr/export --output-dir /path/to/output --fields title,date,license
 ```
 
 #### Development Setup
@@ -63,41 +66,61 @@ pip install -r requirements.txt
 
 ## Architecture Overview
 
-FlickrMetadataEmbedder is a CLI tool that processes Flickr export data to embed EXIF metadata into images. The architecture follows a linear data processing pipeline:
+FlickrMetadataEmbedder is a CLI tool that processes Flickr export data to embed EXIF/IPTC/XMP metadata into images. The architecture follows a linear data processing pipeline with Pydantic validation, O(n) file matching, and rich progress output.
 
-**Data Flow**: Flickr Export → Metadata Parser → Image Updater → Output Directory
+**Data Flow**: `file_scanner` → `metadata_parser` → `metadata_mapper` → `image_writer`
 
 ### Core Modules
 
-- **main.py**: CLI orchestration and argument parsing
-- **metadata_parser.py**: Extracts metadata from Flickr JSON files, returns dict mapping photo_id → {date_taken, geolocation}
-- **image_updater.py**: Embeds metadata into image EXIF using piexif library
-- **sanity_checker.py**: Validates matching between metadata files and images
-- **logger.py**: Centralized logging with file output and configurable console verbosity
+- **main.py**: CLI orchestration with rich progress bars, resume support, field filtering, --dry-run, --strict mode
+- **models.py**: Pydantic models — FlickrPhoto, GeoLocation, MetadataTags, ProcessingResult, PhotoFilePair
+- **file_scanner.py**: Single-pass O(n) directory walk building {photo_id → Path} indexes, then dict-lookup matching
+- **metadata_parser.py**: Parses Flickr JSON into FlickrPhoto Pydantic models (all fields, not just date+GPS)
+- **tag_definitions.py**: Pure constants mapping Flickr fields → pyexiv2 EXIF/IPTC/XMP tag names
+- **metadata_mapper.py**: Converts FlickrPhoto → MetadataTags using tag_definitions, with field filtering support
+- **image_writer.py**: pyexiv2 wrapper writing EXIF/IPTC/XMP with preserve-existing and copy-then-modify safety
+- **gps_converter.py**: GPS coordinate math (decimal ↔ DMS ↔ rational string). Legacy piexif functions kept for tests.
+- **state_manager.py**: Resume/checkpoint tracking via JSON state file with batch-save every 50 photos
+- **sanity_checker.py**: Validates JSON-to-image matching using file_scanner, outputs rich table
+- **logger.py**: stdlib logging + rich console handler (replaces old file-open-per-message Logger class)
+
+### Metadata Fields Embedded
+
+| Flickr JSON field | EXIF | IPTC | XMP |
+|---|---|---|---|
+| `name` | ImageDescription | ObjectName | dc:title |
+| `description` | UserComment | Caption | dc:description |
+| `date_taken` | DateTimeOriginal | DateCreated + TimeCreated | photoshop:DateCreated |
+| `tags[*].tag` | — | Keywords | dc:subject |
+| `license` | — | Copyright | dc:rights |
+| `rotation` | Orientation | — | — |
+| `albums[*].title` | — | SuppCategory | lr:hierarchicalSubject |
+| `geo` (lat/lon) | GPSInfo | — | — |
 
 ### Key Patterns
 
-**File Processing**: Uses `os.walk()` for recursive traversal, matches JSON metadata files (prefixed with "photo_") to corresponding images by photo_id
+**File Matching**: Single-pass `os.walk()` builds `{photo_id → Path}` dicts for JSONs and images, then O(n) dict-lookup matching (replaces old O(n*m) substring search)
 
-**Error Handling**: Non-fatal approach - logs errors but continues processing remaining files
+**Error Handling**: Non-fatal by default — logs errors, continues processing. `--strict` stops on first error.
 
-**Logging**: Dual output (file + console) with log files stored in output directory as `metadata_processing.log`
+**Logging**: stdlib `logging` + `rich.logging.RichHandler` for console, `FileHandler` for audit trail
 
-**Configuration**: CLI-driven with no external config files; all settings passed through function parameters
+**Resumability**: State file (`.flickr_embed_state.json`) tracks processed photo_ids. `--resume` skips already-processed, `--force` reprocesses all.
+
+**Configuration**: CLI-driven with `--fields`/`--skip-fields` for selective embedding
 
 ## Testing Structure
 
-Tests use pytest framework with one test file per module (`test_<module_name>.py`). Note: Test files currently exist but are empty - test implementations need to be added.
+Tests use pytest framework with one test file per module (`test_<module_name>.py`). GPS converter tests (20+ tests) are comprehensive and passing. Other test files need updating for the new API (old tests tested the piexif-based API).
 
 ## Dependencies
 
-- **piexif**: EXIF metadata manipulation
+- **pyexiv2**: EXIF/IPTC/XMP metadata read/write (replaces piexif)
+- **piexif**: Legacy — kept until GPS converter tests are migrated
+- **pydantic**: Data validation for Flickr JSON parsing
+- **rich**: Progress bars and console logging
 - **pytest**: Testing framework
-- Standard library: os, json, argparse
-
-## Development Notes
-
-The codebase uses functional programming patterns with standalone functions (except Logger class). The config/settings.py file exists but is empty, indicating configuration management could be enhanced.
+- **poethepoet**: Task runner
 
 ## Coding standards
 
