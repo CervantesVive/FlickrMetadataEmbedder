@@ -5,8 +5,11 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "flickr-metadata-embedder"
 version = "0.0.1"
-description = "CLI tool that processes Flickr export data to embed EXIF metadata into images"
+description = "CLI tool that embeds Flickr export metadata (title, date, GPS, tags, license, albums) as EXIF/IPTC/XMP into your photos"
 authors = [{ name = "Ivo Pletikosic", email = "ivo@pletikosic.com" }]
+license = "MIT"
+license-files = ["LICENSE"]
+keywords = ["flickr", "exif", "iptc", "xmp", "metadata", "photos", "cli", "pyexiv2"]
 requires-python = ">=3.12"
 dependencies = [
     "pyexiv2>=2.15.0",

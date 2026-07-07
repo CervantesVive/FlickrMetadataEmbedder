@@ -218,7 +218,7 @@ Contributions are welcome! Please ensure:
 
 ## License
 
-[Add your license information here]
+MIT — see [LICENSE](LICENSE).
 
 ## Author
 
