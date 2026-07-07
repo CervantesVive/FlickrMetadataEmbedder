@@ -18,7 +18,7 @@ When you export your photos from Flickr, the metadata is stored separately in JS
 |---|---|---|---|
 | `name` (title) | ImageDescription | ObjectName | dc:title |
 | `description` | UserComment | Caption | dc:description |
-| `date_taken` | DateTimeOriginal | DateCreated | photoshop:DateCreated |
+| `date_taken` | DateTimeOriginal | DateCreated + TimeCreated | photoshop:DateCreated |
 | `tags` | -- | Keywords | dc:subject |
 | `license` | -- | Copyright | dc:rights |
 | `rotation` | Orientation | -- | -- |
@@ -39,7 +39,7 @@ On macOS, you may need: `brew install inih`
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/FlickrMetadataEmbedder.git
+git clone https://github.com/CervantesVive/FlickrMetadataEmbedder.git
 cd FlickrMetadataEmbedder
 ```
 
@@ -163,6 +163,9 @@ poe clean                  # Clean __pycache__ directories
 
 ```
 FlickrMetadataEmbedder/
+├── .github/
+│   └── workflows/
+│       └── tests.yml        # CI: runs pytest on push/PR to main
 ├── src/
 │   ├── main.py              # CLI entry point and orchestration
 │   ├── models.py            # Pydantic data models
@@ -184,6 +187,7 @@ FlickrMetadataEmbedder/
 │   └── test_sanity_checker.py
 ├── requirements.txt
 ├── pyproject.toml
+├── LICENSE
 └── README.md
 ```
 
